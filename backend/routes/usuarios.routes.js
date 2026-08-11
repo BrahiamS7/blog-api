@@ -7,7 +7,10 @@ import {
   eliminarUsuario,
   login,
 } from "../controllers/usuarios.controller.js";
-import { verificarToken, esAdmin } from "../middleware/auth.middleware.js";
+import {
+  verificarToken,
+  esAdmin,
+} from "../middleware/auth.middleware.js";
 const router = Router();
 
 router.get("/", verificarToken, esAdmin, obtenerUsuarios);

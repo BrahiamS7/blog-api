@@ -76,7 +76,7 @@ generated/prisma/
 ### Monorepo
 
 ```prisma
-output = "../../packages/database/generated/prisma"
+output = "../packages/database/generated/prisma"
 ```
 
 ### Same directory as schema
