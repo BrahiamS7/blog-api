@@ -6,35 +6,63 @@ import {
   actualizarPost,
   eliminarPost,
 } from "../services/posts";
-import { logout } from "../services/auth";
+
+import { logout, getCurrentUser } from "../services/auth";
 import { useNavigate } from "react-router-dom";
+import Usuarios from "./Usuarios";
 
 function Dashboard() {
+  // =========================
+  // ESTADOS
+  // =========================
+
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState("");
+
+  // Sección actual: posts / usuarios
+  const [seccion, setSeccion] = useState("posts");
+
+  // Filtro de posts
   const [filtro, setFiltro] = useState("todos");
 
+  // Formulario de posts
   const [titulo, setTitulo] = useState("");
   const [contenido, setContenido] = useState("");
 
+  // Edición de posts
   const [editando, setEditando] = useState(null);
+
+  // Modal
+  const [mostrarModal, setMostrarModal] = useState(false);
+
+  // Loading
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  // Usuario obtenido del JWT
+  const usuario = getCurrentUser();
+
+  // =========================
+  // POSTS
+  // =========================
 
   async function cargarPosts() {
     try {
       setError("");
 
       const data =
-        filtro === "todos" ? await obtenerPosts() : await obtenerMisPosts();
+        filtro === "todos"
+          ? await obtenerPosts()
+          : await obtenerMisPosts();
 
       setPosts(data);
     } catch (error) {
       console.error(error);
 
       setError(
-        error.response?.data?.error || "No se pudieron cargar los posts",
+        error.response?.data?.error ||
+          "No se pudieron cargar los posts"
       );
 
       setPosts([]);
@@ -42,8 +70,14 @@ function Dashboard() {
   }
 
   useEffect(() => {
-    cargarPosts();
-  }, [filtro]);
+    if (seccion === "posts") {
+      cargarPosts();
+    }
+  }, [filtro, seccion]);
+
+  // =========================
+  // CREAR / EDITAR POST
+  // =========================
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -69,129 +103,498 @@ function Dashboard() {
         });
       }
 
-      setTitulo("");
-      setContenido("");
-      setEditando(null);
+      cerrarModal();
 
       await cargarPosts();
     } catch (error) {
       console.error(error);
 
-      setError(error.response?.data?.error || "Ocurrió un error");
+      setError(
+        error.response?.data?.error ||
+          "Ocurrió un error"
+      );
     } finally {
       setLoading(false);
     }
   }
 
+  // =========================
+  // EDITAR
+  // =========================
+
   function prepararEdicion(post) {
     setEditando(post);
+
     setTitulo(post.titulo);
     setContenido(post.contenido);
+
+    setMostrarModal(true);
   }
 
-  function cancelarEdicion() {
+  // =========================
+  // MODAL
+  // =========================
+
+  function abrirModal() {
+    setEditando(null);
+    setTitulo("");
+    setContenido("");
+    setError("");
+
+    setMostrarModal(true);
+  }
+
+  function cerrarModal() {
+    setMostrarModal(false);
+
     setEditando(null);
     setTitulo("");
     setContenido("");
     setError("");
   }
 
+  // =========================
+  // ELIMINAR POST
+  // =========================
+
   async function handleEliminar(id) {
-    const confirmar = window.confirm("¿Seguro que quieres eliminar este post?");
+    const confirmar = window.confirm(
+      "¿Seguro que quieres eliminar este post?"
+    );
 
     if (!confirmar) return;
 
     try {
+      setError("");
+
       await eliminarPost(id);
 
       setPosts((postsActuales) =>
-        postsActuales.filter((post) => post.id !== id),
+        postsActuales.filter(
+          (post) => post.id !== id
+        )
       );
     } catch (error) {
       console.error(error);
 
-      setError(error.response?.data?.error || "No se pudo eliminar el post");
+      setError(
+        error.response?.data?.error ||
+          "No se pudo eliminar el post"
+      );
     }
   }
 
+  // =========================
+  // LOGOUT
+  // =========================
+
   function handleLogout() {
     logout();
+
     navigate("/login");
   }
 
+  // =========================
+  // RENDER
+  // =========================
+
   return (
-    <div>
-      <header>
-        <h1>Blog API</h1>
+    <div className="app-layout">
 
-        <button onClick={handleLogout}>Cerrar sesión</button>
-      </header>
+      {/* =========================
+          NAVBAR
+      ========================= */}
 
-      <main>
-        <h2>{editando ? "Editar publicación" : "Nueva publicación"}</h2>
+      <header className="navbar">
 
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Título"
-            value={titulo}
-            onChange={(e) => setTitulo(e.target.value)}
-          />
+        <div className="navbar-brand">
+          <span className="navbar-logo">
+            B
+          </span>
 
-          <textarea
-            placeholder="Contenido"
-            value={contenido}
-            onChange={(e) => setContenido(e.target.value)}
-          />
-
-          <button type="submit" disabled={loading}>
-            {loading
-              ? "Guardando..."
-              : editando
-                ? "Actualizar"
-                : "Crear publicación"}
-          </button>
-
-          {editando && (
-            <button type="button" onClick={cancelarEdicion}>
-              Cancelar
-            </button>
-          )}
-        </form>
-
-        {error && <p>{error}</p>}
-
-        <hr />
-
-        <h2>Publicaciones</h2>
-        <div>
-          <button onClick={() => setFiltro("todos")}>Todos los posts</button>
-
-          <button onClick={() => setFiltro("mios")}>Mis posts</button>
+          <span>
+            Blog API
+          </span>
         </div>
 
-        {posts.length === 0 ? (
-          <p>No hay publicaciones.</p>
-        ) : (
-          posts.map((post) => (
-            <article key={post.id}>
-              <h3>{post.titulo}</h3>
+        <div className="navbar-actions">
 
-              <p>{post.contenido}</p>
+          {usuario && (
+            <div className="user-info">
 
-              <small>Autor: {post.autor.nombre}</small>
+              <div className="user-avatar">
+                {usuario.email
+                  .charAt(0)
+                  .toUpperCase()}
+              </div>
+
+              <div className="user-details">
+
+                <span className="user-email">
+                  {usuario.email}
+                </span>
+
+                <span className="user-role">
+                  {usuario.rol}
+                </span>
+
+              </div>
+
+            </div>
+          )}
+
+          <button
+            className="logout-button"
+            onClick={handleLogout}
+          >
+            Cerrar sesión
+          </button>
+
+        </div>
+
+      </header>
+
+      {/* =========================
+          CONTENIDO
+      ========================= */}
+
+      <main className="dashboard">
+
+        {/* HEADER */}
+
+        <div className="dashboard-header">
+
+          <div>
+
+            <p className="dashboard-label">
+              DASHBOARD
+            </p>
+
+            <h1>
+              {seccion === "posts"
+                ? "Tus publicaciones"
+                : "Administración de usuarios"}
+            </h1>
+
+            <p className="dashboard-description">
+
+              {seccion === "posts"
+                ? "Crea, administra y comparte tus publicaciones."
+                : "Administra los usuarios de tu aplicación."}
+
+            </p>
+
+          </div>
+
+        </div>
+
+        {/* =========================
+            TABS PRINCIPALES
+        ========================= */}
+
+        <div className="dashboard-tabs">
+
+          <button
+            className={
+              seccion === "posts"
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setSeccion("posts")
+            }
+          >
+            Publicaciones
+          </button>
+
+          {usuario?.rol === "ADMIN" && (
+            <button
+              className={
+                seccion === "usuarios"
+                  ? "active"
+                  : ""
+              }
+              onClick={() =>
+                setSeccion("usuarios")
+              }
+            >
+              Usuarios
+            </button>
+          )}
+
+        </div>
+
+        {/* =========================
+            MENSAJE DE ERROR
+        ========================= */}
+
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
+        )}
+
+        {/* =====================================================
+            SECCIÓN POSTS
+        ===================================================== */}
+
+        {seccion === "posts" && (
+          <>
+
+            {/* FILTROS */}
+
+            <div className="post-filters">
+
+              <button
+                className={`filter-button ${
+                  filtro === "todos"
+                    ? "active"
+                    : ""
+                }`}
+                onClick={() =>
+                  setFiltro("todos")
+                }
+              >
+                Todos los posts
+              </button>
+
+              <button
+                className={`filter-button ${
+                  filtro === "mios"
+                    ? "active"
+                    : ""
+                }`}
+                onClick={() =>
+                  setFiltro("mios")
+                }
+              >
+                Mis posts
+              </button>
+
+            </div>
+
+            {/* POSTS */}
+
+            <section>
+
+              {posts.length === 0 ? (
+
+                <div className="empty-state">
+
+                  <h2>
+                    No hay publicaciones
+                  </h2>
+
+                  <p>
+                    Todavía no existen
+                    publicaciones para mostrar.
+                  </p>
+
+                </div>
+
+              ) : (
+
+                <div className="posts-grid">
+
+                  {posts.map((post) => (
+
+                    <article
+                      className="post-card"
+                      key={post.id}
+                    >
+
+                      <div className="post-card-header">
+
+                        <h3>
+                          {post.titulo}
+                        </h3>
+
+                        <span className="post-author">
+
+                          Publicado por{" "}
+
+                          <strong>
+                            {post.autor?.nombre ||
+                              "Usuario"}
+                          </strong>
+
+                        </span>
+
+                      </div>
+
+                      <p className="post-content">
+                        {post.contenido}
+                      </p>
+
+                      {/* SOLO EL AUTOR PUEDE EDITAR/ELIMINAR */}
+
+                      {usuario &&
+                        post.autorId ===
+                          usuario.id && (
+
+                        <div className="post-card-actions">
+
+                          <button
+                            className="edit-button"
+                            onClick={() =>
+                              prepararEdicion(post)
+                            }
+                          >
+                            Editar
+                          </button>
+
+                          <button
+                            className="delete-button"
+                            onClick={() =>
+                              handleEliminar(
+                                post.id
+                              )
+                            }
+                          >
+                            Eliminar
+                          </button>
+
+                        </div>
+
+                      )}
+
+                    </article>
+
+                  ))}
+
+                </div>
+
+              )}
+
+            </section>
+
+            {/* BOTÓN CREAR */}
+
+            <button
+              className="floating-create-button"
+              onClick={abrirModal}
+            >
+              + Nueva publicación
+            </button>
+
+          </>
+        )}
+
+        {/* =====================================================
+            SECCIÓN USUARIOS
+        ===================================================== */}
+
+        {seccion === "usuarios" &&
+          usuario?.rol === "ADMIN" && (
+
+            <Usuarios />
+
+        )}
+
+      </main>
+
+      {/* =====================================================
+          MODAL CREAR / EDITAR POST
+      ===================================================== */}
+
+      {mostrarModal && (
+
+        <div className="modal-overlay">
+
+          <div className="modal">
+
+            <div className="modal-header">
 
               <div>
-                <button onClick={() => prepararEdicion(post)}>Editar</button>
 
-                <button onClick={() => handleEliminar(post.id)}>
-                  Eliminar
-                </button>
+                <p className="dashboard-label">
+                  {editando
+                    ? "EDITAR"
+                    : "NUEVA PUBLICACIÓN"}
+                </p>
+
+                <h2>
+
+                  {editando
+                    ? "Editar publicación"
+                    : "Nueva publicación"}
+
+                </h2>
+
               </div>
-            </article>
-          ))
-        )}
-      </main>
+
+              <button
+                className="close-button"
+                onClick={cerrarModal}
+              >
+                ×
+              </button>
+
+            </div>
+
+            <form
+              onSubmit={handleSubmit}
+            >
+
+              <label>
+                Título
+              </label>
+
+              <input
+                type="text"
+                placeholder="Título de la publicación"
+                value={titulo}
+                onChange={(e) =>
+                  setTitulo(e.target.value)
+                }
+              />
+
+              <label>
+                Contenido
+              </label>
+
+              <textarea
+                placeholder="Escribe tu publicación..."
+                value={contenido}
+                onChange={(e) =>
+                  setContenido(e.target.value)
+                }
+              />
+
+              <div className="modal-actions">
+
+                <button
+                  type="button"
+                  className="cancel-button"
+                  onClick={cerrarModal}
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  className="create-button"
+                  disabled={loading}
+                >
+
+                  {loading
+                    ? "Guardando..."
+                    : editando
+                      ? "Actualizar"
+                      : "Publicar"}
+
+                </button>
+
+              </div>
+
+            </form>
+
+          </div>
+
+        </div>
+
+      )}
+
     </div>
   );
 }
