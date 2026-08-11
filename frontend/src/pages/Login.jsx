@@ -13,17 +13,21 @@ function Login() {
   async function handleSubmit(e) {
     e.preventDefault();
 
+    if (!email.trim() || !password.trim()) {
+      setError("Correo y contraseña son obligatorios");
+      return;
+    }
+
     setError("");
     setLoading(true);
 
     try {
       await login(email, password);
-
       navigate("/dashboard");
     } catch (error) {
       setError(
         error.response?.data?.error ||
-        "No se pudo iniciar sesión"
+          "No se pudo iniciar sesión"
       );
     } finally {
       setLoading(false);
@@ -31,31 +35,79 @@ function Login() {
   }
 
   return (
-    <div>
-      <h1>Iniciar sesión</h1>
+    <main className="login-page">
+      <div className="login-card">
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Correo"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <div className="login-logo">
+          B
+        </div>
 
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <div className="login-header">
+          <p className="login-label">BLOG API</p>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Iniciando..." : "Iniciar sesión"}
-        </button>
+          <h1>Bienvenido de nuevo</h1>
 
-        {error && <p>{error}</p>}
-      </form>
-    </div>
+          <p>
+            Inicia sesión para acceder a tus publicaciones.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="login-form">
+
+          <div className="form-group">
+            <label htmlFor="email">
+              Correo electrónico
+            </label>
+
+            <input
+              id="email"
+              type="email"
+              placeholder="tu@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">
+              Contraseña
+            </label>
+
+            <input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+            />
+          </div>
+
+          {error && (
+            <div className="login-error">
+              {error}
+            </div>
+          )}
+
+          <button
+            className="login-button"
+            type="submit"
+            disabled={loading}
+          >
+            {loading
+              ? "Iniciando sesión..."
+              : "Iniciar sesión"}
+          </button>
+
+        </form>
+
+        <p className="login-footer">
+          Sistema de gestión de publicaciones
+        </p>
+
+      </div>
+    </main>
   );
 }
 

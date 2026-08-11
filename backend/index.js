@@ -6,7 +6,7 @@ import postsRouter from "./routes/post.routes.js";
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "*",
   }),
 );
 const port = process.env.PORT || 3000;
