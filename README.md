@@ -108,6 +108,30 @@ Roadmap / Mejoras futuras
  Subida de imágenes en posts
 Contribución
 
+Testing
+
+Este proyecto cuenta con tests de integración escritos con Jest y Supertest, que cubren los endpoints principales de la API.
+
+Requisitos previos
+
+Antes de correr los tests, necesitás una base de datos PostgreSQL separada, exclusiva para testing (no se usa la misma base de desarrollo).
+
+1. Creá una base de datos vacía, por ejemplo `blog_test`.
+2. Creá un archivo `.env.test` en la raíz del proyecto, con las mismas variables que tu `.env`, pero con `DATABASE_URL` apuntando a esa base de test.
+3. Aplicá las migraciones sobre la base de test:
+
+npm run migrate:test
+
+npm test
+
+Qué cubren
+
+- Creación de un post con datos válidos (caso exitoso)
+- Rechazo de creación de un post sin token de autenticación (401)
+
+Cada corrida de tests limpia automáticamente los datos que crea (usuarios y posts de prueba), por lo que la suite es repetible sin dejar datos residuales en la base de test.
+
+
 Las contribuciones son bienvenidas. Para contribuir:
 
 Haz un fork del proyecto
