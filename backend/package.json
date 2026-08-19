@@ -4,9 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node --watch index.js",
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
+    "migrate:test": "cross-env DATABASE_URL=\"postgresql://postgres:max071527@localhost:5432/blog_test?schema=public\" prisma migrate deploy"
+  },
+  "jest": {
+    "setupFiles": [
+      "<rootDir>/jest.setup.js"
+    ],
+    "testEnvironment": "node"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +30,9 @@
     "pg": "^8.22.0"
   },
   "devDependencies": {
-    "prisma": "^7.9.1"
+    "cross-env": "^10.1.0",
+    "jest": "^30.4.2",
+    "prisma": "^7.9.1",
+    "supertest": "^7.2.2"
   }
 }
