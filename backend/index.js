@@ -9,7 +9,6 @@ app.use(
     origin: "*",
   }),
 );
-const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
@@ -19,6 +18,4 @@ app.get("/", (req, res) => {
 app.use("/usuarios", usuariosRouter);
 app.use("/posts", postsRouter);
 
-app.listen(port, () => {
-  console.log(`SERVER RUNNING ON PORT ${port} `);
-});
+export default app;
