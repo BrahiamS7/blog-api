@@ -3,6 +3,12 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET;
+export function validarPassword(password) {
+  if (password.length >= 8 && /\d/.test(password)) {
+    return { msg: "Seguridad de contraseña aprobada", esValida: true };
+  }
+  return { msg: "Seguridad de contraseña no valida", esValida: false };
+}
 
 export async function login(req, res) {
   try {
@@ -68,16 +74,21 @@ export async function crearUsuario(req, res) {
         .status(400)
         .json({ error: "Todos los campos son obligatorios" });
     }
-    const hashPassword = await bcrypt.hash(req.body.password, 10);
-    const nuevoUsuario = await prisma.usuario.create({
-      data: {
-        nombre: req.body.nombre,
-        email: req.body.email,
-        password: hashPassword,
-      },
-    });
-    const { password, ...usuarioSinPassword } = nuevoUsuario;
-    res.status(201).json(usuarioSinPassword);
+    let contraseñaStatus = validarPassword(req.body.password);
+    if (contraseñaStatus.esValida) {
+      const hashPassword = await bcrypt.hash(req.body.password, 10);
+      const nuevoUsuario = await prisma.usuario.create({
+        data: {
+          nombre: req.body.nombre,
+          email: req.body.email,
+          password: hashPassword,
+        },
+      });
+      const { password, ...usuarioSinPassword } = nuevoUsuario;
+      res.status(201).json(usuarioSinPassword);
+    } else {
+      return res.status(400).json({msg:contraseñaStatus.msg})
+    }
   } catch (error) {
     res.status(500).json({ msg: "error por parte del servidor", error });
   }
