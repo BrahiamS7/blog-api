@@ -931,3 +931,39 @@
 
   transform: translateY(-1px);
 }
+
+.like-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  margin-right: auto;
+
+  border: 1px solid #eeeef1;
+  border-radius: 7px;
+
+  padding: 8px 12px;
+
+  background: #fafafa;
+  color: #696970;
+
+  font-size: 12px;
+  font-weight: 650;
+
+  transition: 0.2s;
+}
+
+.like-button:hover {
+  border-color: #dcd9eb;
+  background: #f5f3fc;
+}
+
+.like-button.is-active {
+  border-color: #f6c9d6;
+  background: #fdf1f4;
+  color: #d6336c;
+}
+
+.like-button:active {
+  transform: scale(0.96);
+}
