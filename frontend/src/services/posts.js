@@ -24,3 +24,8 @@ export async function eliminarPost(id) {
   const response = await api.delete(`/posts/${id}`);
   return response.data;
 }
+
+export async function toggleLike(postId) {
+  const response = await api.post(`/posts/${postId}/like`);
+  return response.data; 
+}

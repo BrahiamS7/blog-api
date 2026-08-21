@@ -24,6 +24,7 @@ model Usuario {
   password String
   rol      Rol    @default(USUARIO)
   posts    Post[]
+  likes    Like[]
 }
 
 model Post {
@@ -32,4 +33,15 @@ model Post {
   contenido String
   autor     Usuario @relation(fields: [autorId], references: [id])
   autorId   Int
+  likes     Like[]
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  usuarioId Int
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    Int
+
+  @@unique([usuarioId, postId])
 }
