@@ -1,144 +1,123 @@
-Blog con Roles de Usuario y Administrador
+# Eco
 
-Plataforma de blog donde los usuarios pueden registrarse, iniciar sesión y gestionar sus propias publicaciones, mientras que los administradores tienen control adicional sobre usuarios y contenido.
+Un lugar para contar las cosas. Eco es una red de notas públicas: cualquiera puede escribir, leer lo que escriben otros y responder con un "eco" (like). Pensada para cualquier edad — sin fricción para registrarse ni para publicar.
 
-Características
+**Demo:** [https://tu-app.vercel.app](https://tu-app.vercel.app) _(actualizá este link con tu URL real de Vercel)_
+**API:** [https://blog-api-5ysv.onrender.com](https://blog-api-5ysv.onrender.com)
 
-Usuarios
+## Qué se puede hacer
 
-Registro e inicio de sesión
-Crear, editar y eliminar sus propios posts
-Ver posts propios y de otros usuarios
+**Cualquier persona con cuenta**
+- Registrarse e iniciar sesión
+- Escribir, editar y eliminar sus propias publicaciones
+- Leer las publicaciones de todos, o filtrar solo las propias
+- Dar "eco" (like) a una publicación
 
-Administradores
+**Administración**
+- Todo lo anterior, más:
+- Editar o eliminar publicaciones de cualquier persona
+- Crear, editar y eliminar cuentas de usuario
 
-Todo lo que puede hacer un usuario
-Eliminar posts de cualquier usuario
-Crear, editar y eliminar usuarios
-Tecnologías
+## Stack
 
-Backend
+| | |
+|---|---|
+| **Backend** | Node.js, Express 5, Prisma, PostgreSQL |
+| **Auth** | JWT en cookie `httpOnly` (no en `localStorage`), bcrypt para contraseñas |
+| **Frontend** | React 19, Vite, React Router |
+| **Testing** | Jest + Supertest |
+| **Deploy** | Render (API) + Vercel (frontend) |
 
-Node.js
-Prisma (ORM)
-PostgreSQL
+## Estructura del proyecto
 
-Frontend
-
-React
-Vite
-Requisitos previos
-
-Antes de empezar, asegúrate de tener instalado:
-
-Node.js (v18 o superior recomendado)
-PostgreSQL corriendo localmente o en un servicio remoto
-npm o yarn
-Instalación
-Clona el repositorio
-bash
-git clone https://github.com/tu-usuario/tu-repositorio.git
-cd tu-repositorio
-Instala las dependencias del backend
-bash
-cd backend
-npm install
-Instala las dependencias del frontend
-bash
-cd ../frontend
-npm install
-Configura las variables de entorno (ver sección de abajo)
-Ejecuta las migraciones de Prisma
-bash
-cd ../backend
-npx prisma migrate dev
-(Opcional) Crea un usuario administrador inicial mediante un seed script o directamente en la base de datos, ya que por defecto los registros nuevos suelen crearse como usuario normal.
-Variables de entorno
-
-Crea un archivo .env en la carpeta backend con las siguientes variables:
-
-env
-DATABASE_URL="postgresql://usuario:contraseña@localhost:5432/nombre_db"
-JWT_SECRET="tu_secreto_aqui"
-PORT=3000
-
-Ajusta los nombres de las variables según cómo las hayas definido en tu código.
-
-Uso
-
-Debes levantar el backend y el frontend en terminales separadas.
-
-Terminal 1 — Backend
-
-bash
-cd backend
-npm run dev
-
-Terminal 2 — Frontend
-
-bash
-cd frontend
-npm run dev
-
-Luego abre tu navegador en http://localhost:5173 (o el puerto que indique Vite).
-
-Roles y permisos
-Acción	Usuario	Admin
-Registrarse / iniciar sesión	✅	✅
-Crear post	✅	✅
-Ver posts de otros	✅	✅
-Editar sus propios posts	✅	✅
-Eliminar sus propios posts	✅	✅
-Eliminar posts de otros usuarios	❌	✅
-Crear/editar/eliminar usuarios	❌	✅
-Estructura del proyecto
+```
+.
 ├── backend/
-│   ├── prisma/
-│   │   └── schema.prisma
-│   ├── src/
-│   └── package.json
-├── frontend/
-│   ├── src/
-│   └── package.json
-└── README.md
-Roadmap / Mejoras futuras
- Comentarios en posts
- Categorías y etiquetas
- Búsqueda de posts
- Subida de imágenes en posts
-Contribución
+│   ├── controllers/       # lógica de negocio (usuarios, posts)
+│   ├── routes/            # definición de endpoints
+│   ├── middleware/        # auth (verificar token, chequeo de rol admin)
+│   ├── prisma/            # schema.prisma + migraciones
+│   ├── utils/prisma.js    # cliente de Prisma
+│   ├── __tests__/         # tests de integración (Jest + Supertest)
+│   └── index.js           # app de Express (sin listen — la usan tests y server.js)
+│   └── server.js          # punto de entrada real (llama app.listen)
+└── frontend/
+    └── src/
+        ├── pages/         # Login, Register, Dashboard, Usuarios
+        ├── components/    # BrandMark, ProtectedRoute
+        ├── services/      # llamadas a la API (auth, posts, usuarios)
+        └── api/axios.js   # cliente axios (withCredentials para la cookie)
+```
 
-Testing
+## Correr en local
 
-Este proyecto cuenta con tests de integración escritos con Jest y Supertest, que cubren los endpoints principales de la API.
+Necesitás Node 18+ y una base PostgreSQL (local o remota).
 
-Requisitos previos
+```bash
+git clone https://github.com/BrahiamS7/blog-api.git
+cd blog-api
+```
 
-Antes de correr los tests, necesitás una base de datos PostgreSQL separada, exclusiva para testing (no se usa la misma base de desarrollo).
+### Backend
 
-1. Creá una base de datos vacía, por ejemplo `blog_test`.
-2. Creá un archivo `.env.test` en la raíz del proyecto, con las mismas variables que tu `.env`, pero con `DATABASE_URL` apuntando a esa base de test.
-3. Aplicá las migraciones sobre la base de test:
+```bash
+cd backend
+npm install
+cp .env.example .env   # completá DATABASE_URL y generá un JWT_SECRET propio
+npx prisma migrate dev
+npm run dev             # http://localhost:3000
+```
 
-npm run migrate:test
+### Frontend
 
+En otra terminal:
+
+```bash
+cd frontend
+npm install
+cp .env.example .env    # por defecto ya apunta a http://localhost:3000
+npm run dev              # http://localhost:5173
+```
+
+No hay que crear un usuario admin a mano: registrate desde `/register` y vas a quedar como `USUARIO`. Para tener un admin, creá una cuenta y subile el rol a `ADMIN` directamente en la base, o promové a alguien ya registrado desde otra cuenta admin.
+
+## Variables de entorno
+
+**`backend/.env`**
+
+| Variable | Descripción |
+|---|---|
+| `DATABASE_URL` | Cadena de conexión de PostgreSQL |
+| `JWT_SECRET` | Secreto para firmar los tokens — generá uno propio, no reutilices el de ejemplo |
+| `PORT` | Puerto del servidor (default `3000`) |
+| `FRONTEND_URL` | Origen permitido por CORS (default `http://localhost:5173`). En producción, la URL de Vercel |
+| `NODE_ENV` | En `production`, la cookie de sesión se marca `secure` + `sameSite=none` (necesario para que funcione cross-domain) |
+
+**`frontend/.env`**
+
+| Variable | Descripción |
+|---|---|
+| `VITE_API_URL` | URL base de la API |
+
+## Testing
+
+```bash
+cd backend
+npm run migrate:test   # aplica las migraciones sobre una base de test separada (.env.test)
 npm test
+```
 
-Qué cubren
+Los tests cubren login, registro público, email duplicado, restricciones de rol admin, creación de posts y autorización cruzada entre usuarios (que alguien no pueda editar el post de otra persona).
 
-- Creación de un post con datos válidos (caso exitoso)
-- Rechazo de creación de un post sin token de autenticación (401)
+## Deploy
 
-Cada corrida de tests limpia automáticamente los datos que crea (usuarios y posts de prueba), por lo que la suite es repetible sin dejar datos residuales en la base de test.
+**Backend (Render)**
+- Start command: `node server.js` (**no** `node index.js` — ese archivo solo exporta la app, no abre el puerto)
+- Variables de entorno: `DATABASE_URL`, `JWT_SECRET`, `FRONTEND_URL`, `NODE_ENV=production`
 
+**Frontend (Vercel)**
+- Variable de entorno: `VITE_API_URL` apuntando a la URL de Render
 
-Las contribuciones son bienvenidas. Para contribuir:
+## Licencia
 
-Haz un fork del proyecto
-Crea una rama para tu feature (git checkout -b feature/nueva-funcionalidad)
-Haz commit de tus cambios (git commit -m 'Agrega nueva funcionalidad')
-Haz push a tu rama (git push origin feature/nueva-funcionalidad)
-Abre un Pull Request
-
-Autor
-BrahiamS7
+Sin licencia definida — proyecto de portafolio.
