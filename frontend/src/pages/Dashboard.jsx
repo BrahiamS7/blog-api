@@ -10,59 +10,51 @@ import {
 
 import { logout, getCurrentUser } from "../services/auth";
 import { useNavigate } from "react-router-dom";
+import BrandMark from "../components/BrandMark";
 import Usuarios from "./Usuarios";
 
-function Dashboard() {
-  // =========================
-  // ESTADOS
-  // =========================
+function HeartIcon({ filled }) {
+  return (
+    <svg
+      className="heart-icon"
+      width="19"
+      height="19"
+      viewBox="0 0 24 24"
+      fill={filled ? "currentColor" : "none"}
+      stroke="currentColor"
+      strokeWidth="2"
+    >
+      <path d="M12 20.5s-7.5-4.6-10-9.3C.4 8 1.7 4.5 5 3.4c2.2-.8 4.5 0 6 2 1.5-2 3.8-2.8 6-2 3.3 1.1 4.6 4.6 3 7.8-2.5 4.7-10 9.3-10 9.3Z" />
+    </svg>
+  );
+}
 
+function Dashboard() {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState("");
 
-  // Sección actual: posts / usuarios
   const [seccion, setSeccion] = useState("posts");
-
-  // Filtro de posts
   const [filtro, setFiltro] = useState("todos");
 
-  // Formulario de posts
   const [titulo, setTitulo] = useState("");
   const [contenido, setContenido] = useState("");
-
-  // Edición de posts
   const [editando, setEditando] = useState(null);
-
-  // Modal
   const [mostrarModal, setMostrarModal] = useState(false);
-
-  // Loading
   const [loading, setLoading] = useState(false);
+  const [pulsandoId, setPulsandoId] = useState(null);
 
   const navigate = useNavigate();
-
-  // Usuario obtenido del JWT
   const usuario = getCurrentUser();
-
-  // =========================
-  // POSTS
-  // =========================
 
   async function cargarPosts() {
     try {
       setError("");
-
       const data =
         filtro === "todos" ? await obtenerPosts() : await obtenerMisPosts();
-
       setPosts(data);
     } catch (error) {
       console.error(error);
-
-      setError(
-        error.response?.data?.error || "No se pudieron cargar los posts",
-      );
-
+      setError(error.response?.data?.error || "No se pudieron cargar los posts");
       setPosts([]);
     }
   }
@@ -71,11 +63,8 @@ function Dashboard() {
     if (seccion === "posts") {
       cargarPosts();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtro, seccion]);
-
-  // =========================
-  // CREAR / EDITAR POST
-  // =========================
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -90,84 +79,54 @@ function Dashboard() {
       setError("");
 
       if (editando) {
-        await actualizarPost(editando.id, {
-          titulo,
-          contenido,
-        });
+        await actualizarPost(editando.id, { titulo, contenido });
       } else {
-        await crearPost({
-          titulo,
-          contenido,
-        });
+        await crearPost({ titulo, contenido });
       }
 
       cerrarModal();
-
       await cargarPosts();
     } catch (error) {
       console.error(error);
-
       setError(error.response?.data?.error || "Ocurrió un error");
     } finally {
       setLoading(false);
     }
   }
 
-  // =========================
-  // EDITAR
-  // =========================
-
   function prepararEdicion(post) {
     setEditando(post);
-
     setTitulo(post.titulo);
     setContenido(post.contenido);
-
     setMostrarModal(true);
   }
-
-  // =========================
-  // MODAL
-  // =========================
 
   function abrirModal() {
     setEditando(null);
     setTitulo("");
     setContenido("");
     setError("");
-
     setMostrarModal(true);
   }
 
   function cerrarModal() {
     setMostrarModal(false);
-
     setEditando(null);
     setTitulo("");
     setContenido("");
     setError("");
   }
 
-  // =========================
-  // ELIMINAR POST
-  // =========================
-
   async function handleEliminar(id) {
-    const confirmar = window.confirm("¿Seguro que quieres eliminar este post?");
-
+    const confirmar = window.confirm("¿Seguro que querés eliminar este post?");
     if (!confirmar) return;
 
     try {
       setError("");
-
       await eliminarPost(id);
-
-      setPosts((postsActuales) =>
-        postsActuales.filter((post) => post.id !== id),
-      );
+      setPosts((postsActuales) => postsActuales.filter((post) => post.id !== id));
     } catch (error) {
       console.error(error);
-
       setError(error.response?.data?.error || "No se pudo eliminar el post");
     }
   }
@@ -183,270 +142,203 @@ function Dashboard() {
             : post,
         ),
       );
+
+      if (data.dioLike) {
+        setPulsandoId(postId);
+        setTimeout(() => setPulsandoId(null), 420);
+      }
     } catch (error) {
       console.error(error);
       setError(error.response?.data?.error || "No se pudo actualizar el like");
     }
   }
 
-  // =========================
-  // LOGOUT
-  // =========================
-
   async function handleLogout() {
     await logout();
-
     navigate("/login");
   }
 
-  // =========================
-  // RENDER
-  // =========================
+  const primerNombre = usuario?.nombre?.split(" ")[0] || usuario?.email;
 
   return (
-    <div className="app-layout">
-      {/* =========================
-          NAVBAR
-      ========================= */}
-
-      <header className="navbar">
-        <div className="navbar-brand">
-          <span className="navbar-logo">B</span>
-
-          <span>Blog API</span>
+    <div className="app-shell">
+      <header className="topbar">
+        <div className="topbar-brand">
+          <BrandMark size={26} />
+          <span className="auth-wordmark">Eco</span>
         </div>
 
-        <div className="navbar-actions">
+        <div className="user-chip">
           {usuario && (
-            <div className="user-info">
-              <div className="user-avatar">
+            <div className="user-chip-identity">
+              <div className="user-chip-avatar">
                 {usuario.email.charAt(0).toUpperCase()}
               </div>
-
-              <div className="user-details">
-                <span className="user-email">{usuario.email}</span>
-
-                <span className="user-role">{usuario.rol}</span>
+              <div className="user-chip-text">
+                <span className="user-chip-name">{usuario.nombre || usuario.email}</span>
+                <span className="user-chip-role">{usuario.rol}</span>
               </div>
             </div>
           )}
 
-          <button className="logout-button" onClick={handleLogout}>
-            Cerrar sesión
+          <button className="btn-text" onClick={handleLogout}>
+            Salir
           </button>
         </div>
       </header>
 
-      {/* =========================
-          CONTENIDO
-      ========================= */}
-
-      <main className="dashboard">
-        {/* HEADER */}
-
-        <div className="dashboard-header">
-          <div>
-            <p className="dashboard-label">DASHBOARD</p>
-
-            <h1>
-              {seccion === "posts"
-                ? "Tus publicaciones"
-                : "Administración de usuarios"}
-            </h1>
-
-            <p className="dashboard-description">
-              {seccion === "posts"
-                ? "Crea, administra y comparte tus publicaciones."
-                : "Administra los usuarios de tu aplicación."}
-            </p>
-          </div>
-        </div>
-
-        {/* =========================
-            TABS PRINCIPALES
-        ========================= */}
-
-        <div className="dashboard-tabs">
-          <button
-            className={seccion === "posts" ? "active" : ""}
-            onClick={() => setSeccion("posts")}
-          >
-            Publicaciones
-          </button>
-
-          {usuario?.rol === "ADMIN" && (
+      <main className="feed-page">
+        {usuario?.rol === "ADMIN" && (
+          <nav className="section-nav">
             <button
-              className={seccion === "usuarios" ? "active" : ""}
+              className={seccion === "posts" ? "is-active" : ""}
+              onClick={() => setSeccion("posts")}
+            >
+              Publicaciones
+            </button>
+            <button
+              className={seccion === "usuarios" ? "is-active" : ""}
               onClick={() => setSeccion("usuarios")}
             >
-              Usuarios
+              Personas
             </button>
-          )}
-        </div>
-
-        {/* =========================
-            MENSAJE DE ERROR
-        ========================= */}
-
-        {error && <div className="error-message">{error}</div>}
-
-        {/* =====================================================
-            SECCIÓN POSTS
-        ===================================================== */}
+          </nav>
+        )}
 
         {seccion === "posts" && (
           <>
-            {/* FILTROS */}
+            <h1 className="feed-greeting">Hola, {primerNombre}</h1>
+            <p className="feed-subtitle">¿Qué tenés ganas de contar hoy?</p>
 
-            <div className="post-filters">
-              <button
-                className={`filter-button ${
-                  filtro === "todos" ? "active" : ""
-                }`}
-                onClick={() => setFiltro("todos")}
-              >
-                Todos los posts
-              </button>
+            <button className="composer-trigger" onClick={abrirModal}>
+              <span className="user-chip-avatar">
+                {usuario?.email.charAt(0).toUpperCase()}
+              </span>
+              Escribí algo nuevo...
+            </button>
 
-              <button
-                className={`filter-button ${filtro === "mios" ? "active" : ""}`}
-                onClick={() => setFiltro("mios")}
-              >
-                Mis posts
-              </button>
+            <div className="feed-filters">
+              <div className="feed-filter-tabs">
+                <button
+                  className={filtro === "todos" ? "is-active" : ""}
+                  onClick={() => setFiltro("todos")}
+                >
+                  Para vos
+                </button>
+                <button
+                  className={filtro === "mios" ? "is-active" : ""}
+                  onClick={() => setFiltro("mios")}
+                >
+                  Lo tuyo
+                </button>
+              </div>
+              {posts.length > 0 && (
+                <span className="feed-count">
+                  {posts.length} {posts.length === 1 ? "publicación" : "publicaciones"}
+                </span>
+              )}
             </div>
 
-            {/* POSTS */}
+            {error && <div className="error-banner">{error}</div>}
 
-            <section>
-              {posts.length === 0 ? (
-                <div className="empty-state">
-                  <h2>No hay publicaciones</h2>
+            {posts.length === 0 ? (
+              <div className="empty-state">
+                <h2>Todavía no hay nada por acá</h2>
+                <p>
+                  {filtro === "todos"
+                    ? "Sé la primera persona en contar algo."
+                    : "Lo que escribas va a aparecer en esta sección."}
+                </p>
+              </div>
+            ) : (
+              <div className="feed-list">
+                {posts.map((post) => (
+                  <article className="feed-entry" key={post.id}>
+                    <div className="feed-entry-meta">
+                      Por <strong>{post.autor?.nombre || "alguien"}</strong>
+                    </div>
 
-                  <p>Todavía no existen publicaciones para mostrar.</p>
-                </div>
-              ) : (
-                <div className="posts-grid">
-                  {posts.map((post) => (
-                    <article className="post-card" key={post.id}>
-                      <div className="post-card-header">
-                        <h3>{post.titulo}</h3>
+                    <h3 className="feed-entry-title">{post.titulo}</h3>
+                    <p className="feed-entry-body">{post.contenido}</p>
 
-                        <span className="post-author">
-                          Publicado por{" "}
-                          <strong>{post.autor?.nombre || "Usuario"}</strong>
-                        </span>
-                      </div>
+                    <div className="feed-entry-actions">
+                      <button
+                        className={`like-btn ${post.dioLike ? "is-liked" : ""} ${
+                          pulsandoId === post.id ? "pulse" : ""
+                        }`}
+                        onClick={() => handleLike(post.id)}
+                      >
+                        <HeartIcon filled={post.dioLike} />
+                        {post.totalLikes}
+                      </button>
 
-                      <p className="post-content">{post.contenido}</p>
-
-
-                      {/* SOLO EL AUTOR PUEDE EDITAR/ELIMINAR */}
-
-                      <div className="post-card-actions">
-                        <button
-                          className={`like-button ${post.dioLike ? "is-active" : ""}`}
-                          onClick={() => handleLike(post.id)}
-                        >
-                          {post.dioLike ? "❤️" : "🤍"} {post.totalLikes}
-                        </button>
-
-                        {usuario && post.autorId === usuario.id && (
-                          <>
-                            <button
-                              className="edit-button"
-                              onClick={() => prepararEdicion(post)}
-                            >
-                              Editar
-                            </button>
-                            <button
-                              className="delete-button"
-                              onClick={() => handleEliminar(post.id)}
-                            >
-                              Eliminar
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              )}
-            </section>
-
-            {/* BOTÓN CREAR */}
-
-            <button className="floating-create-button" onClick={abrirModal}>
-              + Nueva publicación
-            </button>
+                      {usuario && post.autorId === usuario.id && (
+                        <>
+                          <button
+                            className="btn-text"
+                            onClick={() => prepararEdicion(post)}
+                          >
+                            Editar
+                          </button>
+                          <button
+                            className="btn-text is-danger"
+                            onClick={() => handleEliminar(post.id)}
+                          >
+                            Eliminar
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
           </>
         )}
-
-        {/* =====================================================
-            SECCIÓN USUARIOS
-        ===================================================== */}
 
         {seccion === "usuarios" && usuario?.rol === "ADMIN" && <Usuarios />}
       </main>
 
-      {/* =====================================================
-          MODAL CREAR / EDITAR POST
-      ===================================================== */}
-
       {mostrarModal && (
         <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <div>
-                <p className="dashboard-label">
-                  {editando ? "EDITAR" : "NUEVA PUBLICACIÓN"}
-                </p>
-
-                <h2>{editando ? "Editar publicación" : "Nueva publicación"}</h2>
-              </div>
-
-              <button className="close-button" onClick={cerrarModal}>
+          <div className="modal-card">
+            <div className="modal-head">
+              <h2>{editando ? "Editar publicación" : "Nueva publicación"}</h2>
+              <button className="icon-btn" onClick={cerrarModal}>
                 ×
               </button>
             </div>
 
-            <form onSubmit={handleSubmit}>
-              <label>Título</label>
+            <form onSubmit={handleSubmit} className="modal-form">
+              <div className="field">
+                <label htmlFor="titulo">Título</label>
+                <input
+                  id="titulo"
+                  type="text"
+                  placeholder="Ponele un título"
+                  value={titulo}
+                  onChange={(e) => setTitulo(e.target.value)}
+                />
+              </div>
 
-              <input
-                type="text"
-                placeholder="Título de la publicación"
-                value={titulo}
-                onChange={(e) => setTitulo(e.target.value)}
-              />
+              <div className="field">
+                <label htmlFor="contenido">Contenido</label>
+                <textarea
+                  id="contenido"
+                  placeholder="Contá lo que quieras..."
+                  value={contenido}
+                  onChange={(e) => setContenido(e.target.value)}
+                />
+              </div>
 
-              <label>Contenido</label>
-
-              <textarea
-                placeholder="Escribe tu publicación..."
-                value={contenido}
-                onChange={(e) => setContenido(e.target.value)}
-              />
+              {error && <div className="form-note is-error">{error}</div>}
 
               <div className="modal-actions">
-                <button
-                  type="button"
-                  className="cancel-button"
-                  onClick={cerrarModal}
-                >
+                <button type="button" className="btn btn-ghost" onClick={cerrarModal}>
                   Cancelar
                 </button>
-
-                <button
-                  type="submit"
-                  className="create-button"
-                  disabled={loading}
-                >
-                  {loading
-                    ? "Guardando..."
-                    : editando
-                      ? "Actualizar"
-                      : "Publicar"}
+                <button type="submit" className="btn btn-primary" disabled={loading}>
+                  {loading ? "Guardando..." : editando ? "Guardar cambios" : "Publicar"}
                 </button>
               </div>
             </form>
