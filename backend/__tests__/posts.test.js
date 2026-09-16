@@ -4,7 +4,7 @@ import app from "../index.js";
 import prisma from "../utils/prisma.js";
 
 describe("Posts", () => {
-  let tokenUsuario;
+  let cookieUsuario;
   let usuarioPruebaId;
   let admin;
 
@@ -45,13 +45,13 @@ describe("Posts", () => {
       password: "contraseñaDePrueba123",
     });
 
-    const tokenAdmin = loginAdminResponse.body.token; // ajustá "token" si tu API lo llama distinto (ej: accessToken)
+    const cookieAdmin = loginAdminResponse.headers["set-cookie"];
 
 
     const emailPrueba = `usuario-test-${Date.now()}@example.com`;
     const crearUsuarioResponse = await request(app)
       .post("/usuarios")
-      .set("Authorization", `Bearer ${tokenAdmin}`)
+      .set("Cookie", cookieAdmin)
       .send({
         nombre: "Usuario Prueba",
         email: emailPrueba,
@@ -66,7 +66,7 @@ describe("Posts", () => {
         password: "contraseñaDePrueba123",
       });
 
-    tokenUsuario = loginUsuarioResponse.body.token;
+    cookieUsuario = loginUsuarioResponse.headers["set-cookie"];
   });
 
   afterAll(async () => {
@@ -90,7 +90,7 @@ describe("Posts", () => {
   it("deberia crear un post cuando los datos son validos", async () => {
     const crearPost = await request(app)
       .post("/posts/")
-      .set("Authorization", `Bearer ${tokenUsuario}`)
+      .set("Cookie", cookieUsuario)
       .send({
         titulo: "Post de prueba en test",
         contenido: "Este es un texto de prueba lorem",
@@ -109,4 +109,40 @@ describe("Posts", () => {
     expect(respuesta.status).toBe(401);
     expect(respuesta.body.msg).toBe('Token no proporcionado')
   })
+
+  it("no deberia permitir que un usuario edite el post de otro usuario", async () => {
+    const postDeUsuario = await request(app)
+      .post("/posts/")
+      .set("Cookie", cookieUsuario)
+      .send({
+        titulo: "Post que no deberia poder editar otro usuario",
+        contenido: "Contenido original",
+      });
+
+    const passwordHasheada = await bcrypt.hash("contraseñaDePrueba123", 10);
+    const emailIntruso = `intruso-test-${Date.now()}@example.com`;
+    const intruso = await prisma.usuario.create({
+      data: {
+        nombre: "Usuario Intruso",
+        email: emailIntruso,
+        password: passwordHasheada,
+        rol: "USUARIO",
+      },
+    });
+
+    const loginIntrusoResponse = await request(app)
+      .post("/usuarios/login")
+      .send({ email: emailIntruso, password: "contraseñaDePrueba123" });
+    const cookieIntruso = loginIntrusoResponse.headers["set-cookie"];
+
+    const respuesta = await request(app)
+      .put(`/posts/${postDeUsuario.body.id}`)
+      .set("Cookie", cookieIntruso)
+      .send({ titulo: "Intento de edicion ajena" });
+
+    expect(respuesta.status).toBe(403);
+
+    await prisma.post.delete({ where: { id: postDeUsuario.body.id } });
+    await prisma.usuario.delete({ where: { id: intruso.id } });
+  });
 });

@@ -1,5 +1,4 @@
 import api from "../api/axios";
-import { jwtDecode } from "jwt-decode";
 
 export async function login(email, password) {
   const response = await api.post("/usuarios/login", {
@@ -7,34 +6,34 @@ export async function login(email, password) {
     password,
   });
 
-  localStorage.setItem("token", response.data.token);
+  localStorage.setItem("usuario", JSON.stringify(response.data.usuario));
 
   return response.data;
 }
 
-export function logout() {
-  localStorage.removeItem("token");
-}
-
-export function getToken() {
-  return localStorage.getItem("token");
+export async function logout() {
+  try {
+    await api.post("/usuarios/logout");
+  } finally {
+    localStorage.removeItem("usuario");
+  }
 }
 
 export function getCurrentUser() {
-  const token = getToken();
+  const usuarioGuardado = localStorage.getItem("usuario");
 
-  if (!token) {
+  if (!usuarioGuardado) {
     return null;
   }
 
   try {
-    return jwtDecode(token);
+    return JSON.parse(usuarioGuardado);
   } catch (error) {
-    console.error("Token inválido:", error);
+    console.error("Datos de usuario inválidos:", error);
     return null;
   }
 }
 
 export function isAuthenticated() {
-  return !!getToken();
+  return !!getCurrentUser();
 }

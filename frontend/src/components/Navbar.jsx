@@ -5,8 +5,8 @@ function Navbar() {
   const navigate = useNavigate();
   const usuario = getCurrentUser();
 
-  function handleLogout() {
-    logout();
+  async function handleLogout() {
+    await logout();
     navigate("/login");
   }
 

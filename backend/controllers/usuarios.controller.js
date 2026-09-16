@@ -3,6 +3,14 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET;
+const esProduccion = process.env.NODE_ENV === "production";
+const OPCIONES_COOKIE_TOKEN = {
+  httpOnly: true,
+  secure: esProduccion,
+  sameSite: esProduccion ? "none" : "lax",
+  maxAge: 60 * 60 * 1000,
+};
+
 export function validarPassword(password) {
   if (password.length >= 8 && /\d/.test(password)) {
     return { msg: "Seguridad de contraseña aprobada", esValida: true };
@@ -34,11 +42,24 @@ export async function login(req, res) {
         expiresIn: "1h",
       },
     );
-    res.status(200).json({ token });
+    res.cookie("token", token, OPCIONES_COOKIE_TOKEN);
+    res.status(200).json({
+      usuario: {
+        id: usuario.id,
+        nombre: usuario.nombre,
+        email: usuario.email,
+        rol: usuario.rol,
+      },
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "error por parte del servidor" });
   }
+}
+
+export function logout(req, res) {
+  res.clearCookie("token", OPCIONES_COOKIE_TOKEN);
+  res.status(200).json({ msg: "Sesión cerrada" });
 }
 
 export async function obtenerUsuarios(req, res) {

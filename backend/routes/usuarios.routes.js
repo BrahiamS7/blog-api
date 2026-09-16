@@ -7,6 +7,7 @@ import {
   actualizarUsuario,
   eliminarUsuario,
   login,
+  logout,
 } from "../controllers/usuarios.controller.js";
 import {
   verificarToken,
@@ -27,6 +28,7 @@ router.get("/:id", verificarToken, esAdmin, usuarioPorId);
 router.post("/", verificarToken, esAdmin, crearUsuario);
 router.post("/registro", crearUsuario);
 router.post("/login", limiteLogin, login);
+router.post("/logout", logout);
 router.put("/:id", verificarToken, esAdmin, actualizarUsuario);
 router.delete("/:id", verificarToken, esAdmin, eliminarUsuario);
 export default router;
