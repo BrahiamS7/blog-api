@@ -2,7 +2,7 @@
 
 Un lugar para contar las cosas. Eco es una red de notas públicas: cualquiera puede escribir, leer lo que escriben otros y responder con un "eco" (like). Pensada para cualquier edad — sin fricción para registrarse ni para publicar.
 
-**Demo:** [https://tu-app.vercel.app](https://tu-app.vercel.app) _(actualizá este link con tu URL real de Vercel)_
+**Demo:** https://blog-api-jade-iota.vercel.app
 **API:** [https://blog-api-5ysv.onrender.com](https://blog-api-5ysv.onrender.com)
 
 ## Qué se puede hacer
