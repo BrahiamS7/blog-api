@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { login } from "../services/auth";
 
 function Login() {
@@ -103,7 +103,7 @@ function Login() {
         </form>
 
         <p className="login-footer">
-          Sistema de gestión de publicaciones
+          ¿No tenés cuenta? <Link to="/register">Creá una</Link>
         </p>
 
       </div>
