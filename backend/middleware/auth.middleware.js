@@ -4,7 +4,7 @@ export function verificarToken(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
-    return res.status(401).json({ msg: "Token no proporcionado",error });
+    return res.status(401).json({ msg: "Token no proporcionado" });
   }
 
   const token = authHeader.split(" ")[1];
@@ -14,7 +14,7 @@ export function verificarToken(req, res, next) {
     req.usuario = payload;
     next();
   } catch (error) {
-    return res.status(401).json({ msg: "Token inválido o expirado", error });
+    return res.status(401).json({ msg: "Token inválido o expirado" });
   }
 }
 export function esAdmin(req, res, next) {

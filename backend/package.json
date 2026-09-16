@@ -7,7 +7,7 @@
     "dev": "node --watch server.js",
     "start": "node server.js",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
-    "migrate:test": "cross-env DATABASE_URL=\"postgresql://postgres:REDACTED@localhost:5432/blog_test?schema=public\" prisma migrate deploy"
+    "migrate:test": "dotenv -e .env.test -- prisma migrate deploy"
   },
   "jest": {
     "setupFiles": [
@@ -26,11 +26,14 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.22.0"
   },
   "devDependencies": {
     "cross-env": "^10.1.0",
+    "dotenv-cli": "^11.0.0",
     "jest": "^30.4.2",
     "prisma": "^7.9.1",
     "supertest": "^7.2.2"

@@ -36,6 +36,7 @@ export async function login(req, res) {
     );
     res.status(200).json({ token });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "error por parte del servidor" });
   }
 }
@@ -46,8 +47,10 @@ export async function obtenerUsuarios(req, res) {
     if (usuarios.length === 0) {
       return res.status(404).json({ error: "No se encontraron usuarios" });
     }
-    res.status(200).json(usuarios);
+    const usuariosSinPassword = usuarios.map(({ password, ...usuario }) => usuario);
+    res.status(200).json(usuariosSinPassword);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "error por parte del servidor" });
   }
 }
@@ -63,6 +66,7 @@ export async function usuarioPorId(req, res) {
     const { password, ...usuarioSinPassword } = usuario;
     res.status(200).json(usuarioSinPassword);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "error por parte del servidor" });
   }
 }
@@ -90,7 +94,11 @@ export async function crearUsuario(req, res) {
       return res.status(400).json({msg:contraseñaStatus.msg})
     }
   } catch (error) {
-    res.status(500).json({ msg: "error por parte del servidor", error });
+    if (error.code === "P2002") {
+      return res.status(409).json({ error: "Ese email ya está registrado" });
+    }
+    console.error(error);
+    res.status(500).json({ msg: "error por parte del servidor" });
   }
 }
 
@@ -118,6 +126,7 @@ export async function actualizarUsuario(req, res) {
     const { password, ...usuarioSinPassword } = usuarioActualizado;
     res.status(200).json(usuarioSinPassword);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "error por parte del servidor" });
   }
 }
@@ -135,6 +144,7 @@ export async function eliminarUsuario(req, res) {
     });
     res.status(204).send();
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "error por parte del servidor" });
   }
 }

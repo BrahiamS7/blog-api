@@ -1,12 +1,19 @@
 import "dotenv/config";
 import cors from "cors";
+import helmet from "helmet";
 import express from "express";
 import usuariosRouter from "./routes/usuarios.routes.js";
 import postsRouter from "./routes/post.routes.js";
 const app = express();
+
+const origenesPermitidos = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(",").map((origen) => origen.trim())
+  : ["http://localhost:5173"];
+
+app.use(helmet());
 app.use(
   cors({
-    origin: "*",
+    origin: origenesPermitidos,
   }),
 );
 

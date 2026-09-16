@@ -28,9 +28,9 @@ export async function obtenerPosts(req, res) {
 
     res.status(200).json(postsConLikes);
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       msg: "error por parte del servidor",
-      error,
     });
   }
 }
@@ -65,9 +65,9 @@ export async function misPosts(req, res) {
 
     res.status(200).json(postsConLikes);
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       msg: "error por parte del servidor",
-      error: error.message,
     });
   }
 }
@@ -100,7 +100,8 @@ export async function postPorId(req, res) {
 
     res.status(200).json(postConLikes);
   } catch (error) {
-    res.status(500).json({ msg: "error por parte del servidor", error });
+    console.error(error);
+    res.status(500).json({ msg: "error por parte del servidor" });
   }
 }
 
@@ -122,9 +123,9 @@ export async function crearPost(req, res) {
 
     res.status(201).json(nuevoPost);
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       msg: "error por parte del servidor",
-      error,
     });
   }
 }
@@ -177,9 +178,9 @@ export async function actualizarPost(req, res) {
 
     res.status(200).json(postActualizado);
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       msg: "error por parte del servidor",
-      error,
     });
   }
 }
@@ -215,9 +216,9 @@ export async function eliminarPost(req, res) {
       msg: "Post eliminado correctamente",
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       msg: "error por parte del servidor",
-      error,
     });
   }
 }
@@ -263,8 +264,7 @@ export async function toggleLike(req, res) {
       totalLikes,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ msg: "error por parte del servidor", error: error.message });
+    console.error(error);
+    res.status(500).json({ msg: "error por parte del servidor" });
   }
 }

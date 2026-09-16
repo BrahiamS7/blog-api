@@ -26,10 +26,10 @@ describe("Posts", () => {
       },
     });
 
-    // 1. Hashear una contraseña para el admin semilla
+
     const passwordHasheada = await bcrypt.hash("contraseñaDePrueba123", 10);
     const emailAdmin = `admin-test-${Date.now()}@example.com`;
-    // 2. Crear el admin directo con Prisma (sin pasar por HTTP)
+
     admin = await prisma.usuario.create({
       data: {
         nombre: "Admin Test",
@@ -39,8 +39,7 @@ describe("Posts", () => {
       },
     });
 
-    // 3. Login del admin vía HTTP, para conseguir su token real
-    // (acá usás supertest contra tu endpoint de login)
+
     const loginAdminResponse = await request(app).post("/usuarios/login").send({
       email: emailAdmin,
       password: "contraseñaDePrueba123",
@@ -48,8 +47,7 @@ describe("Posts", () => {
 
     const tokenAdmin = loginAdminResponse.body.token; // ajustá "token" si tu API lo llama distinto (ej: accessToken)
 
-    // 4. Con el token del admin, crear el usuario de prueba
-    // vía POST a tu endpoint protegido de crear usuarios
+
     const emailPrueba = `usuario-test-${Date.now()}@example.com`;
     const crearUsuarioResponse = await request(app)
       .post("/usuarios")
@@ -61,7 +59,6 @@ describe("Posts", () => {
       });
     usuarioPruebaId = crearUsuarioResponse.body.id;
 
-    // 5. Login del usuario de prueba, para guardar tokenUsuario
     const loginUsuarioResponse = await request(app)
       .post("/usuarios/login")
       .send({
@@ -73,7 +70,6 @@ describe("Posts", () => {
   });
 
   afterAll(async () => {
-    // Limpiar la base de datos después de las pruebas
     await prisma.post.deleteMany({
       where: {
         autorId: {
