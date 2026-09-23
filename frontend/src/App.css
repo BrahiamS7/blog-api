@@ -52,9 +52,15 @@
 }
 
 .btn-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 44px;
+  padding: 6px 10px;
+
   background: transparent;
   color: var(--ink-soft);
-  padding: 6px 4px;
   font-size: 13.5px;
   font-weight: 600;
   border-radius: 6px;
@@ -69,8 +75,8 @@
 }
 
 .icon-btn {
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
 
   display: grid;
@@ -125,7 +131,7 @@
   background: var(--mist);
   color: var(--ink);
 
-  font-size: 15px;
+  font-size: 16px;
   font-family: var(--font-body);
 
   transition:
@@ -551,6 +557,10 @@
   align-items: center;
   gap: 7px;
 
+  min-height: 44px;
+  padding: 0 6px;
+  margin-left: -6px;
+
   color: var(--ink-faint);
   font-size: 14px;
   font-weight: 600;
@@ -659,7 +669,7 @@
 
 .modal-head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 20px;
 

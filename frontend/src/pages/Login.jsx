@@ -45,6 +45,7 @@ function Login() {
 
   return (
     <main className="auth-page">
+      <title>Iniciar sesión — Eco</title>
       <AuthRipple />
 
       <div className="auth-card">
@@ -83,7 +84,11 @@ function Login() {
             />
           </div>
 
-          {error && <div className="form-note is-error">{error}</div>}
+          {error && (
+            <div className="form-note is-error" role="alert">
+              {error}
+            </div>
+          )}
 
           <button className="btn btn-primary" type="submit" disabled={loading}>
             {loading ? "Entrando..." : "Entrar"}

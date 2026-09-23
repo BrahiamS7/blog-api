@@ -61,6 +61,7 @@ function Dashboard() {
 
   useEffect(() => {
     if (seccion === "posts") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       cargarPosts();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -162,6 +163,9 @@ function Dashboard() {
 
   return (
     <div className="app-shell">
+      <title>{seccion === "usuarios" ? "Personas" : "Inicio"} — Eco</title>
+      <meta name="robots" content="noindex" />
+
       <header className="topbar">
         <div className="topbar-brand">
           <BrandMark size={26} />
@@ -239,7 +243,11 @@ function Dashboard() {
               )}
             </div>
 
-            {error && <div className="error-banner">{error}</div>}
+            {error && (
+              <div className="error-banner" role="alert">
+                {error}
+              </div>
+            )}
 
             {posts.length === 0 ? (
               <div className="empty-state">
@@ -331,7 +339,11 @@ function Dashboard() {
                 />
               </div>
 
-              {error && <div className="form-note is-error">{error}</div>}
+              {error && (
+                <div className="form-note is-error" role="alert">
+                  {error}
+                </div>
+              )}
 
               <div className="modal-actions">
                 <button type="button" className="btn btn-ghost" onClick={cerrarModal}>

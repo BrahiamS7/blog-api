@@ -2,7 +2,7 @@
 
 Un lugar para contar las cosas. Eco es una red de notas públicas: cualquiera puede escribir, leer lo que escriben otros y responder con un "eco" (like). Pensada para cualquier edad — sin fricción para registrarse ni para publicar.
 
-**Demo:** https://blog-api-jade-iota.vercel.app
+**Demo:** [https://blog-api-jade-iota.vercel.app](https://blog-api-jade-iota.vercel.app)
 **API:** [https://blog-api-5ysv.onrender.com](https://blog-api-5ysv.onrender.com)
 
 ## Qué se puede hacer
@@ -117,6 +117,16 @@ Los tests cubren login, registro público, email duplicado, restricciones de rol
 
 **Frontend (Vercel)**
 - Variable de entorno: `VITE_API_URL` apuntando a la URL de Render
+
+## Notas sobre el frontend público
+
+El frontend pasó por un checklist de sitio público (SEO básico, accesibilidad, favicon, Open Graph, breakpoints móviles). Lo que **no** se implementó, y por qué:
+
+- **Política de privacidad y términos de uso** — Eco es un proyecto de portafolio personal, no un negocio registrado que recolecte datos con fines comerciales. Redactar una política de privacidad real requeriría inventar una identidad legal falsa (razón social, NIT, dirección), así que se dejó afuera a propósito en vez de fabricar placeholders. Si en algún momento se convierte en un producto real, hay que retomar esto con datos reales.
+- **Dirección de contacto real** — mismo motivo: no hay un negocio físico detrás.
+- **Banner de cookies** — la única cookie que usa el sitio es la de sesión (`httpOnly`, estrictamente necesaria para el login). No hay cookies de analítica ni publicidad, así que no corresponde pedir consentimiento todavía.
+- **Analíticas** — no hay ninguna herramienta instalada. Si se agrega en el futuro (Plausible/Umami son más livianas y respetuosas con la privacidad que GA4), ahí sí pasa a ser necesario el banner de cookies.
+- **Página de "gracias"** — no hay checkout ni formulario de lead cuyo envío amerite una confirmación separada; el registro redirige directo al feed.
 
 ## Licencia
 

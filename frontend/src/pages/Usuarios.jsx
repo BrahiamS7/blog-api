@@ -30,6 +30,7 @@ function Usuarios() {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     cargarUsuarios();
   }, []);
 
@@ -133,7 +134,11 @@ function Usuarios() {
         </button>
       </div>
 
-      {error && !mostrarFormulario && <div className="error-banner">{error}</div>}
+      {error && !mostrarFormulario && (
+        <div className="error-banner" role="alert">
+          {error}
+        </div>
+      )}
 
       {usuarios.length === 0 ? (
         <div className="empty-state">
@@ -220,7 +225,11 @@ function Usuarios() {
                 />
               </div>
 
-              {error && <div className="form-note is-error">{error}</div>}
+              {error && (
+                <div className="form-note is-error" role="alert">
+                  {error}
+                </div>
+              )}
 
               <div className="modal-actions">
                 <button type="button" className="btn btn-ghost" onClick={limpiarFormulario}>

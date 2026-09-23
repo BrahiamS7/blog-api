@@ -51,6 +51,7 @@ function Register() {
 
   return (
     <main className="auth-page">
+      <title>Crear cuenta — Eco</title>
       <AuthRipple />
 
       <div className="auth-card">
@@ -101,7 +102,11 @@ function Register() {
             />
           </div>
 
-          {error && <div className="form-note is-error">{error}</div>}
+          {error && (
+            <div className="form-note is-error" role="alert">
+              {error}
+            </div>
+          )}
 
           <button className="btn btn-primary" type="submit" disabled={loading}>
             {loading ? "Creando cuenta..." : "Crear cuenta"}
